@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LGTM画像ジェネレーター</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Google画像検索の検索結果のスタイル */
+        .google-image-result {
+            display: inline-block;
+            width: 150px;
+            height: 100px;
+            margin: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .google-image-result img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .google-image-result:hover {
+            border-color: #4CAF50;
+        }
+        .google-image-result.selected {
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px #4CAF50;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h1 class="text-2xl font-semibold text-green-500 text-center mb-6">LGTM画像ジェネレーター</h1>
+
+        <form id="lgtmForm" class="space-y-4">
+            <div>
+                <label for="imageUpload" class="block text-gray-700 text-sm font-bold mb-2">画像アップロード:</label>
+                <input type="file" id="imageUpload" name="imageUpload" accept="image/*"
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+
+            <div>
+                <label for="message" class="block text-gray-700 text-sm font-bold mb-2">メッセージ:</label>
+                <input type="text" id="message" name="message"
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                       placeholder="LGTM! (デフォルト)">
+            </div>
+
+            <div>
+                <label for="textColor" class="block text-gray-700 text-sm font-bold mb-2">文字色:</label>
+                <input type="color" id="textColor" name="textColor" value="#ffffff"
+                       class="rounded">
+            </div>
+
+             <div>
+                <label for="textSize" class="block text-gray-700 text-sm font-bold mb-2">文字サイズ:</label>
+                <input type="number" id="textSize" name="textSize" value="96" min="12" step="4"
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+
+            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                LGTM画像を生成する
+            </button>
+        </form>
+        <div id="previewArea" class="mt-6 text-center" style="display: none;">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3">プレビュー:</h2>
+            <div style="position: relative; display: inline-block;">
+                <img id="generatedImage" src="#" alt="生成されたLGTM画像" class="mx-auto rounded-md shadow-sm max-w-full h-auto">
+                <p id="imageMessage" class="text-white font-bold" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-shadow: 2px 2px 4px rgba(0,0,0,0.5);"></p>
+            </div>
+            <a id="downloadLink" download="lgtm_image.png" style="display: none;"></a>
+            <button id="saveButton" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" style="display: none;">
+                保存する
+            </button>
+            <button id="copyButton" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" style="display: none;">
+                コピーする
+            </button>
+        </div>
+
+        <div id="errorArea" class="mt-6 text-center text-red-500" style="display: none;">
+            <p id="errorMessageText"></p>
+        </div>
+    </div>
+    <script>
+        const lgtmForm = document.getElementById('lgtmForm');
+        const previewArea = document.getElementById('previewArea');
+        const generatedImage = document.getElementById('generatedImage');
+        const imageMessage = document.getElementById('imageMessage');
+        const errorArea = document.getElementById('errorArea');
+        const errorMessageText = document.getElementById('errorMessageText');
+        const imageUpload = document.getElementById('imageUpload');
+        const textColorInput = document.getElementById('textColor');
+        const saveButton = document.getElementById('saveButton');
+        const downloadLink = document.getElementById('downloadLink');
+        const textSizeInput = document.getElementById('textSize');
+        const copyButton = document.getElementById('copyButton');
+
+        let selectedImageUrl = '';
+        let generatedCanvasUrl = '';
+
+        imageUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    selectedImageUrl = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                selectedImageUrl = '';
+            }
+        });
+
+        lgtmForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const message = document.getElementById('message').value || 'LGTM!';
+            const textColor = textColorInput.value;
+            const textSize = textSizeInput.value;
+
+            errorArea.style.display = 'none';
+            previewArea.style.display = 'none';
+            saveButton.style.display = 'none';
+            copyButton.style.display = 'none';
+
+            if (!selectedImageUrl) {
+                errorMessageText.textContent = "画像を選択してください。";
+                errorArea.style.display = 'block';
+                return;
+            }
+
+            generatedImage.onload = () => {
+                imageMessage.textContent = message;
+                imageMessage.style.color = textColor;
+                imageMessage.style.fontSize = `${textSize}px`;
+                generatedImage.alt = message;
+                previewArea.style.display = 'block';
+                saveButton.style.display = 'inline-block';
+                copyButton.style.display = 'inline-block';
+            };
+
+            generatedImage.onerror = () => {
+                errorMessageText.textContent = "画像の読み込みに失敗しました。別の画像を選択してください。";
+                errorArea.style.display = 'block';
+            };
+
+            generatedImage.src = selectedImageUrl;
+        });
+
+        saveButton.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = generatedImage.width;
+            canvas.height = generatedImage.height;
+
+            ctx.drawImage(generatedImage, 0, 0, canvas.width, canvas.height);
+
+            const messageStyle = getComputedStyle(imageMessage);
+            ctx.font = messageStyle.font;
+            ctx.fillStyle = messageStyle.color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const text = imageMessage.textContent;
+            const x = canvas.width / 2;
+            const y = canvas.height / 2;
+            ctx.fillText(text, x, y);
+
+            generatedCanvasUrl = canvas.toDataURL('image/png');
+
+            const link = document.getElementById('downloadLink');
+            link.href = generatedCanvasUrl;
+            link.click();
+        });
+
+        copyButton.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = generatedImage.width;
+            canvas.height = generatedImage.height;
+
+            ctx.drawImage(generatedImage, 0, 0, canvas.width, canvas.height);
+
+            const messageStyle = getComputedStyle(imageMessage);
+            ctx.font = messageStyle.font;
+            ctx.fillStyle = messageStyle.color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const text = imageMessage.textContent;
+            const x = canvas.width / 2;
+            const y = canvas.height / 2;
+            ctx.fillText(text, x, y);
+
+            canvas.toBlob((blob) => {
+                const data = [new ClipboardItem({
+                    'image/png': blob
+                })];
+                navigator.clipboard.write(data).then(() => {
+                    alert('画像をクリップボードにコピーしました！');
+                }).catch(err => {
+                    console.error('クリップボードへのコピーに失敗しました', err);
+                    alert('画像のコピーに失敗しました。');
+                });
+            }, 'image/png');
+        });
+
+        function isValidImageUrl(url) {
+            return /^(https?:\/\/.*\.(png|jpe?g|gif|webp)(\?.*)?)$/i.test(url);
+        }
+    </script>
+</body>
+</html>
