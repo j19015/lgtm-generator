@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LGTM画像ジェネレーター</title>
+    <meta name="description" content="LGTM画像を簡単に生成できるWebアプリです。画像アップロード、メッセージ、文字色、文字サイズのカスタマイズが可能。">
+    <meta property="og:title" content="LGTM画像ジェネレーター">
+    <meta property="og:description" content="LGTM画像を簡単に生成できるWebアプリです。画像アップロード、メッセージ、文字色、文字サイズのカスタマイズが可能。">
+    <meta property="og:image" content="https://placehold.co/800x420/EEE/31343C?text=LGTM%E7%94%BB%E5%83%8F%E7%94%9F%E6%88%90&font=Montserrat">
+    <meta property="og:url" content="https://j19015.github.io/lgtm-generator/index.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="LGTM画像ジェネレーター">
+    <meta name="twitter:description" content="LGTM画像を簡単に生成できるWebアプリです。画像アップロード、メッセージ、文字色、文字サイズのカスタマイズが可能。">
+    <meta name="twitter:image" content="https://placehold.co/800x420/EEE/31343C?text=LGTM%E7%94%A8%E5%83%8F%E7%94%9F%E6%88%90&font=Montserrat">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -65,14 +75,14 @@
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
 
-            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full" style="display: none;">
                 LGTM画像を生成する
             </button>
         </form>
         <div id="previewArea" class="mt-6 text-center" style="display: none;">
             <h2 class="text-lg font-semibold text-gray-800 mb-3">プレビュー:</h2>
-            <div style="position: relative; display: inline-block;">
-                <img id="generatedImage" src="#" alt="生成されたLGTM画像" class="mx-auto rounded-md shadow-sm max-w-full h-auto">
+            <div id="imageContainer" style="position: relative; display: inline-block;">
+                <img id="generatedImage" src="#" alt="生成されたLGTM画像" class="mx-auto rounded-md shadow-sm max-w-full h-auto" style="max-width: 100%; height: auto;">
                 <p id="imageMessage" class="text-white font-bold" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-shadow: 2px 2px 4px rgba(0,0,0,0.5);"></p>
             </div>
             <a id="downloadLink" download="lgtm_image.png" style="display: none;"></a>
@@ -101,6 +111,7 @@
         const downloadLink = document.getElementById('downloadLink');
         const textSizeInput = document.getElementById('textSize');
         const copyButton = document.getElementById('copyButton');
+        const imageContainer = document.getElementById('imageContainer'); // ★変更点：imageContainerを取得
 
         let selectedImageUrl = '';
         let generatedCanvasUrl = '';
@@ -111,16 +122,25 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     selectedImageUrl = e.target.result;
+                    updatePreview();
                 };
                 reader.readAsDataURL(file);
             } else {
                 selectedImageUrl = '';
+                generatedImage.src = '';
+                previewArea.style.display = 'none';
             }
         });
 
-        lgtmForm.addEventListener('submit', (event) => {
-            event.preventDefault();
+        textColorInput.addEventListener('change', () => {
+            updatePreview();
+        });
 
+        textSizeInput.addEventListener('input', () => {
+            updatePreview();
+        });
+
+        function updatePreview() {
             const message = document.getElementById('message').value || 'LGTM!';
             const textColor = textColorInput.value;
             const textSize = textSizeInput.value;
@@ -131,8 +151,8 @@
             copyButton.style.display = 'none';
 
             if (!selectedImageUrl) {
-                errorMessageText.textContent = "画像を選択してください。";
-                errorArea.style.display = 'block';
+                generatedImage.src = '';
+                previewArea.style.display = 'none';
                 return;
             }
 
@@ -149,10 +169,11 @@
             generatedImage.onerror = () => {
                 errorMessageText.textContent = "画像の読み込みに失敗しました。別の画像を選択してください。";
                 errorArea.style.display = 'block';
+                previewArea.style.display = 'none';
             };
 
             generatedImage.src = selectedImageUrl;
-        });
+        }
 
         saveButton.addEventListener('click', () => {
             const canvas = document.createElement('canvas');
