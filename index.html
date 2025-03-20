@@ -488,9 +488,13 @@
             ctx.fillStyle = messageStyle.color;
             ctx.fillText(text, x, y);
             generatedCanvasUrl = canvas.toDataURL('image/png');
-            const link = document.getElementById('downloadLink');
+            // Create a link and simulate a click to trigger download
+            const link = document.createElement('a');
             link.href = generatedCanvasUrl;
-            link.click();
+            link.download = 'lgtm_image.png'; // Set the filename
+            document.body.appendChild(link); // Append the link to the body
+            link.click(); // Simulate a click on the link
+            document.body.removeChild(link); // Remove the link after download
         });
         copyButton.addEventListener('click', () => {
             const canvas = document.createElement('canvas');
