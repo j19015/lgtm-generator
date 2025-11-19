@@ -3,536 +3,1091 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LGTM画像生成ツール</title>
+    <title>LGTM Generator | Create Stunning LGTM Images</title>
     <meta name="description" content="簡単な操作でLGTM画像を生成できるWebサイトです。画像のアップロードやメッセージのカスタマイズが可能です。">
-    <meta property="og:title" content="LGTM画像生成ツール">
+    <meta property="og:title" content="LGTM Generator">
     <meta property="og:description" content="LGTM画像を簡単に作成できるWebアプリです。画像アップロード、メッセージ、文字色、文字サイズのカスタマイズが可能。">
     <meta property="og:image" content="https://j19015.github.io/lgtm-generator/og-image.webp">
     <meta property="og:url" content="https://j19015.github.io/lgtm-generator/index.html">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="LGTM画像生成ツール">
+    <meta name="twitter:title" content="LGTM Generator">
     <meta name="twitter:description" content="LGTM画像を簡単に作成できるWebアプリです。画像アップロード、メッセージ、文字色、文字サイズのカスタマイズが可能。">
     <meta name="twitter:image" content="https://j19015.github.io/lgtm-generator/og-image.webp">
     <link rel="icon" href="https://j19015.github.io/lgtm-generator/og-image.webp">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f9fafb;
-            color: #333;
-            line-height: 1.7;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .container {
-            max-width: 800px;
+
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --bg-dark: #0f0f23;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --glow-primary: rgba(99, 102, 241, 0.5);
+            --glow-secondary: rgba(236, 72, 153, 0.5);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 40% 40%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                var(--bg-dark);
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: var(--secondary);
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 200px;
+            height: 200px;
+            background: var(--accent);
+            top: 50%;
+            left: 50%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-30px, 30px) scale(0.9); }
+            75% { transform: translate(-50px, -30px) scale(1.05); }
+        }
+
+        /* Main container */
+        .app-container {
+            max-width: 1000px;
             margin: 0 auto;
             padding: 2rem;
-            background-color: #fff;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
         }
-        .heading-wrapper {
+
+        /* Header */
+        .header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
         }
-        .heading {
-            font-size: 2.25rem;
-            font-weight: 700;
-            color: #10b981;
-            margin-bottom: 0.75rem;
-        }
-        .description {
-            font-size: 1.1rem;
-            color: #4b5563;
-            line-height: 1.7;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-        .form-container {
-            background-color: #f3f4f6;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            margin-bottom: 2rem;
-        }
-        .form-label {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.5rem;
-        }
-        .input-file {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            font-size: 1rem;
-            color: #4b5563;
-            transition: border-color 0.2s ease;
-            background-color: #fff;
-        }
-        .input-file:focus {
-            outline: none;
-            border-color: #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-        }
-        .input-text, .input-color, .input-number {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            font-size: 1rem;
-            color: #4b5563;
-            transition: border-color 0.2s ease;
-            background-color: #fff;
-        }
-        .input-text:focus, .input-color:focus, .input-number:focus {
-            outline: none;
-            border-color: #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-        }
-        .input-color {
-            height: auto;
-            padding: 0.375rem;
-            width: 4rem;
-        }
-        .button {
+
+        .logo {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            padding: 0.8rem 1.6rem;
-            background-color: #10b981;
-            color: #fff;
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        .button:hover {
-            background-color: #059669;
-            transform: scale(1.03);
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
-        }
-        .button:disabled {
-            background-color: #9ca3af;
-            cursor: not-allowed;
-            opacity: 0.7;
-            transform: none;
-            box-shadow: none;
-        }
-        .preview-area {
-            text-align: center;
-            margin-top: 2rem;
-        }
-        .preview-heading {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 1rem;
-        }
-        .image-container {
-            position: relative;
-            display: inline-block;
-            border-radius: 0.375rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            gap: 0.75rem;
             margin-bottom: 1.5rem;
         }
-        .generated-image {
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 40px var(--glow-primary);
+        }
+
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        /* Glass card */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Form styles */
+        .form-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* File upload */
+        .upload-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(99, 102, 241, 0.02);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .upload-zone.drag-over {
+            border-color: var(--secondary);
+            background: rgba(236, 72, 153, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-text strong {
+            color: var(--primary-light);
+        }
+
+        .upload-formats {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Text input */
+        .input-field {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--glow-primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Grid for options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .option-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Color picker */
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .color-picker {
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            overflow: hidden;
+            background: none;
+            padding: 0;
+        }
+
+        .color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .color-picker::-webkit-color-swatch {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .color-value {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Number input */
+        .number-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .input-number {
+            width: 100px;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'Space Grotesk', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .input-number:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--glow-primary);
+        }
+
+        .input-unit {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Toggle switch */
+        .toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .toggle {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            cursor: pointer;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle input:checked + .toggle-slider {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .toggle input:checked + .toggle-slider::before {
+            transform: translateX(24px);
+        }
+
+        .toggle-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Generate button */
+        .generate-btn {
+            width: 100%;
+            padding: 1.25rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px var(--glow-primary);
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 50px var(--glow-primary);
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-btn:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .generate-btn:disabled:hover {
+            transform: none;
+        }
+
+        /* Preview section */
+        .preview-section {
+            display: none;
+        }
+
+        .preview-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title .material-icons-round {
+            color: var(--primary-light);
+        }
+
+        /* Image preview container */
+        .preview-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+        }
+
+        .image-wrapper {
+            position: relative;
+            display: inline-block;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .preview-image {
             max-width: 100%;
             height: auto;
             display: block;
-            transition: transform 0.2s ease;
         }
-        .generated-image:hover {
-            transform: scale(1.02);
-        }
+
         .message-overlay {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #fff;
-            font-size: 2.5rem;
             font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
             text-align: center;
             white-space: nowrap;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            background-color: rgba(0, 0, 0, 0.4);
         }
-        .button-container {
+
+        /* Action buttons */
+        .action-buttons {
             position: absolute;
-            top: 1.25rem;
-            right: 1.25rem;
+            top: 1rem;
+            right: 1rem;
             display: flex;
+            gap: 0.5rem;
             z-index: 10;
         }
-        .save-button, .copy-button {
-            padding: 0.6rem;
-            background-color: rgba(16, 185, 129, 0.8);
-            color: #fff;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 0.375rem;
+
+        .action-btn {
+            width: 44px;
+            height: 44px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
             cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-            margin-left: 0.75rem;
-            text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            position: relative; /* Add this */
-            flex-direction: column; /* Stack icon and tooltip vertically */
-            align-items: center; /* Center items horizontally */
-        }
-        .save-button:hover, .copy-button:hover {
-            background-color: rgba(16, 185, 129, 1);
-            transform: scale(1.1);
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
-        }
-        .save-button:disabled, .copy-button:disabled {
-            background-color: #9ca3af;
-            cursor: not-allowed;
-            opacity: 0.7;
-            transform: none;
-            box-shadow: none;
-        }
-        .error-area {
-            margin-top: 2rem;
-            padding: 1rem;
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            border-radius: 0.375rem;
-            text-align: center;
-        }
-        .error-message {
-            font-size: 1rem;
-            font-weight: 400;
-            color: #721c24;
-        }
-        .input-number {
-            width: 80px;
-        }
-        .text-size-label {
-            margin-top: 0.5rem;
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-        .switch {
+            transition: all 0.3s ease;
             position: relative;
-            display: inline-block;
-            width: 45px;
-            height: 24px;
-            input {
-                opacity: 0;
-                width: 0;
-                height: 0;
-            }
-            .slider {
-                position: absolute;
-                cursor: pointer;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: #ccc;
-                -webkit-transition: .4s;
-                transition: .4s;
-                border-radius: 34px;
-            }
-            .slider:before {
-                position: absolute;
-                content: "";
-                height: 16px;
-                width: 16px;
-                left: 4px;
-                bottom: 4px;
-                background-color: white;
-                -webkit-transition: .4s;
-                transition: .4s;
-                border-radius: 50%;
-            }
-            input:checked + .slider {
-                background-color: #2196F3;
-            }
-            input:focus + .slider {
-                box-shadow: 0 0 1px #2196F3;
-            }
-            input:checked + .slider:before {
-                -webkit-transform: translateX(20px);
-                -ms-transform: translateX(20px);
-                transform: translateX(20px);
-            }
         }
-        .switch-label {
-            margin-left: 10px;
-            font-size: 0.9rem;
-            color: #555;
+
+        .action-btn:hover {
+            background: var(--primary);
+            transform: scale(1.1);
         }
-        .tooltip {
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .action-btn .material-icons-round {
+            font-size: 1.25rem;
+        }
+
+        .action-btn .tooltip {
             position: absolute;
-            top: 100%; /* Position below the button */
+            top: calc(100% + 8px);
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.375rem;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
             font-size: 0.75rem;
             white-space: nowrap;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.2s ease, visibility 0.2s ease;
-            z-index: 2000;
-            margin-top: 0.25rem; /* Add some space between button and tooltip */
+            transition: all 0.2s ease;
         }
-        .save-button:hover .tooltip,
-        .copy-button:hover .tooltip {
+
+        .action-btn:hover .tooltip {
             opacity: 1;
             visibility: visible;
         }
+
+        /* Preview help text */
+        .preview-help {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Error message */
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            color: #fca5a5;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--success);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 500;
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .app-container {
+                padding: 1rem;
+            }
+
+            .glass-card {
+                padding: 1.5rem;
+                border-radius: 16px;
+            }
+
+            .logo-text {
+                font-size: 1.5rem;
+            }
+
+            .upload-zone {
+                padding: 2rem 1rem;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .generate-btn {
+                padding: 1rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="container">
-        <div class="heading-wrapper">
-            <h1 class="heading">LGTM画像生成ツール</h1>
-            <p class="description">
-                簡単な操作でLGTM画像を生成できるWebサイトです。<br>
-                画像のアップロードやメッセージのカスタマイズが可能です。
-            </p>
-        </div>
-        <form id="lgtmForm" class="form-container">
-            <div>
-                <label for="imageUpload" class="form-label">画像アップロード:</label>
-                <input type="file" id="imageUpload" name="imageUpload" accept="image/*" class="input-file" aria-describedby="imageUploadHelp">
-                <div id="imageUploadHelp" class="text-muted text-sm mt-1">
-                    JPG, PNG, GIF, WEBP形式の画像ファイルをアップロードしてください。
-                </div>
-            </div>
-            <div class="mt-4">
-                <label for="message" class="form-label">メッセージ:</label>
-                <input type="text" id="message" name="message" class="input-text" placeholder="LGTM! (デフォルト)" aria-describedby="messageHelp">
-                <div id="messageHelp" class="text-muted text-sm mt-1">
-                    画像に重ねるメッセージを入力してください。
-                </div>
-            </div>
-            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="flex flex-col">
-                    <label for="textColor" class="form-label">文字色:</label>
-                    <input type="color" id="textColor" name="textColor" value="#ffffff" class="input-color" aria-label="文字色を選択">
-                </div>
-                <div class="flex flex-col">
-                    <label for="textSize" class="form-label">文字サイズ:</label>
-                    <div class="flex items-center">
-                        <input type="number" id="textSize" name="textSize" value="72" min="12" step="4" class="input-number" aria-describedby="textSizeHelp">
-                        <span class="text-gray-500 text-sm ml-1">px</span>
-                    </div>
-                    <small id="textSizeHelp" class="text-muted text-sm">12pxから100pxの間で指定してください。</small>
-                </div>
-                <div class="flex flex-col">
-                    <label for="textBackgroundColor" class="form-label">文字背景色:</label>
-                    <input type="color" id="textBackgroundColor" name="textBackgroundColor" value="#000000" class="input-color" aria-label="文字背景色を選択">
-                </div>
-                <div class="flex items-center mt-8">
-                    <label class="switch">
-                        <input type="checkbox" id="textBackground">
-                        <span class="slider round"></span>
-                    </label>
-                    <label for="textBackground" class="switch-label">文字背景を付ける</label>
-                </div>
-            </div>
-            <button type="submit" class="button mt-6">
-                LGTM画像を生成する
-            </button>
-        </form>
-        <div id="previewArea" class="preview-area" style="display: none;">
-            <h2 class="preview-heading">生成プレビュー:</h2>
-            <div id="imageContainer" class="image-container">
-                <img id="generatedImage" src="#" alt="生成されたLGTM画像" class="generated-image">
-                <p id="imageMessage" class="message-overlay"></p>
-                <div class="button-container">
-                    <button id="saveButton" class="save-button" style="display: none;" aria-label="画像を保存">
-                        <span class="material-icons">save</span>
-                        <span class="tooltip">保存</span>
-                    </button>
-                    <button id="copyButton" class="copy-button" style="display: none;" aria-label="画像をコピー">
-                        <span class="material-icons">content_copy</span>
-                        <span class="tooltip">コピー</span>
-                    </button>
-                </div>
-            </div>
-            <p class="text-center text-gray-600 mt-3">
-                右上のボタンで画像を保存またはコピーできます。
-            </p>
-        </div>
-        <div id="errorArea" class="error-area" style="display: none;">
-            <p id="errorMessageText" class="error-message"></p>
-        </div>
+<body>
+    <div class="bg-animation">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
     </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <span class="material-icons-round">auto_awesome</span>
+                </div>
+                <span class="logo-text">LGTM Generator</span>
+            </div>
+            <p class="tagline">Create stunning LGTM images in seconds</p>
+        </header>
+
+        <!-- Main Form -->
+        <form id="lgtmForm">
+            <div class="glass-card">
+                <!-- Image Upload -->
+                <div class="form-section">
+                    <label class="form-label">Image Upload</label>
+                    <div class="upload-zone" id="uploadZone">
+                        <span class="material-icons-round upload-icon">cloud_upload</span>
+                        <p class="upload-text">
+                            <strong>Click to upload</strong> or drag and drop
+                        </p>
+                        <p class="upload-formats">PNG, JPG, GIF, WEBP (Max 10MB)</p>
+                    </div>
+                    <input type="file" id="imageUpload" class="file-input" accept="image/*">
+                </div>
+
+                <!-- Message Input -->
+                <div class="form-section">
+                    <label for="message" class="form-label">Message</label>
+                    <input
+                        type="text"
+                        id="message"
+                        class="input-field"
+                        placeholder="LGTM!"
+                    >
+                    <p class="form-hint">Leave empty for default "LGTM!"</p>
+                </div>
+
+                <!-- Options Grid -->
+                <div class="form-section">
+                    <label class="form-label">Styling Options</label>
+                    <div class="options-grid">
+                        <!-- Text Color -->
+                        <div class="option-item">
+                            <label class="form-label" style="font-size: 0.75rem;">Text Color</label>
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="textColor" class="color-picker" value="#ffffff">
+                                <span class="color-value" id="textColorValue">#ffffff</span>
+                            </div>
+                        </div>
+
+                        <!-- Font Size -->
+                        <div class="option-item">
+                            <label class="form-label" style="font-size: 0.75rem;">Font Size</label>
+                            <div class="number-input-wrapper">
+                                <input type="number" id="textSize" class="input-number" value="72" min="12" max="200" step="4">
+                                <span class="input-unit">px</span>
+                            </div>
+                        </div>
+
+                        <!-- Background Color -->
+                        <div class="option-item">
+                            <label class="form-label" style="font-size: 0.75rem;">Background Color</label>
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="textBackgroundColor" class="color-picker" value="#000000">
+                                <span class="color-value" id="bgColorValue">#000000</span>
+                            </div>
+                        </div>
+
+                        <!-- Background Toggle -->
+                        <div class="option-item">
+                            <label class="form-label" style="font-size: 0.75rem;">Text Background</label>
+                            <div class="toggle-wrapper">
+                                <label class="toggle">
+                                    <input type="checkbox" id="textBackground">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label">Enable</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generate Button -->
+                <button type="submit" class="generate-btn" id="generateBtn">
+                    <span class="material-icons-round">bolt</span>
+                    Generate LGTM Image
+                </button>
+            </div>
+        </form>
+
+        <!-- Preview Section -->
+        <div class="glass-card preview-section" id="previewSection">
+            <h2 class="section-title">
+                <span class="material-icons-round">preview</span>
+                Preview
+            </h2>
+            <div class="preview-container">
+                <div class="image-wrapper" id="imageWrapper">
+                    <img id="previewImage" src="" alt="LGTM Preview" class="preview-image">
+                    <p id="imageMessage" class="message-overlay"></p>
+                    <div class="action-buttons">
+                        <button type="button" class="action-btn" id="saveBtn" aria-label="Save image">
+                            <span class="material-icons-round">download</span>
+                            <span class="tooltip">Download</span>
+                        </button>
+                        <button type="button" class="action-btn" id="copyBtn" aria-label="Copy image">
+                            <span class="material-icons-round">content_copy</span>
+                            <span class="tooltip">Copy</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <p class="preview-help">Use the buttons above to download or copy your LGTM image</p>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage"></div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Built with love for developers everywhere</p>
+        </footer>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
     <script>
-        const lgtmForm = document.getElementById('lgtmForm');
-        const previewArea = document.getElementById('previewArea');
-        const generatedImage = document.getElementById('generatedImage');
-        const imageMessage = document.getElementById('imageMessage');
-        const errorArea = document.getElementById('errorArea');
-        const errorMessageText = document.getElementById('errorMessageText');
-        const imageUpload = document.getElementById('imageUpload');
-        const textColorInput = document.getElementById('textColor');
-        const saveButton = document.getElementById('saveButton');
-        const downloadLink = document.getElementById('downloadLink');
-        const textSizeInput = document.getElementById('textSize');
-        const copyButton = document.getElementById('copyButton');
-        const imageContainer = document.getElementById('imageContainer');
-        const textBackgroundCheckbox = document.getElementById('textBackground');
-        const textBackgroundColorInput = document.getElementById('textBackgroundColor');
+        // DOM Elements
+        const form = document.getElementById('lgtmForm');
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('imageUpload');
         const messageInput = document.getElementById('message');
+        const textColorInput = document.getElementById('textColor');
+        const textColorValue = document.getElementById('textColorValue');
+        const textSizeInput = document.getElementById('textSize');
+        const bgColorInput = document.getElementById('textBackgroundColor');
+        const bgColorValue = document.getElementById('bgColorValue');
+        const bgToggle = document.getElementById('textBackground');
+        const previewSection = document.getElementById('previewSection');
+        const previewImage = document.getElementById('previewImage');
+        const imageMessage = document.getElementById('imageMessage');
+        const saveBtn = document.getElementById('saveBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const toast = document.getElementById('toast');
+
         let selectedImageUrl = '';
-        let generatedCanvasUrl = '';
-        imageUpload.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    selectedImageUrl = e.target.result;
-                    updatePreview();
-                };
-                reader.readAsDataURL(file);
-            } else {
-                selectedImageUrl = '';
-                generatedImage.src = '';
-                previewArea.style.display = 'none';
+
+        // Upload zone click handler
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop handlers
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('drag-over');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('drag-over');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleImageUpload(file);
             }
         });
-        textColorInput.addEventListener('change', () => {
+
+        // File input change handler
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleImageUpload(file);
+            }
+        });
+
+        // Handle image upload
+        function handleImageUpload(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                selectedImageUrl = e.target.result;
+                updatePreview();
+
+                // Update upload zone UI
+                uploadZone.innerHTML = `
+                    <span class="material-icons-round upload-icon" style="color: var(--success);">check_circle</span>
+                    <p class="upload-text"><strong>${file.name}</strong></p>
+                    <p class="upload-formats">Click to change image</p>
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Color picker value updates
+        textColorInput.addEventListener('input', () => {
+            textColorValue.textContent = textColorInput.value;
             updatePreview();
         });
-        textSizeInput.addEventListener('input', () => {
+
+        bgColorInput.addEventListener('input', () => {
+            bgColorValue.textContent = bgColorInput.value;
             updatePreview();
         });
-        textBackgroundCheckbox.addEventListener('change', () => {
+
+        // Other input change handlers
+        messageInput.addEventListener('input', updatePreview);
+        textSizeInput.addEventListener('input', updatePreview);
+        bgToggle.addEventListener('change', updatePreview);
+
+        // Form submit handler
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
             updatePreview();
         });
-        textBackgroundColorInput.addEventListener('change', () => {
-            updatePreview();
-        });
-        messageInput.addEventListener('input', () => {
-            updatePreview();
-        });
+
+        // Update preview
         function updatePreview() {
+            hideError();
+
+            if (!selectedImageUrl) {
+                previewSection.classList.remove('active');
+                return;
+            }
+
             const message = messageInput.value || 'LGTM!';
             const textColor = textColorInput.value;
             const textSize = textSizeInput.value;
-            const textBackground = textBackgroundCheckbox.checked;
-            const textBackgroundColor = textBackgroundColorInput.value;
-            errorArea.style.display = 'none';
-            previewArea.style.display = 'none';
-            saveButton.style.display = 'none';
-            copyButton.style.display = 'none';
-            if (!selectedImageUrl) {
-                generatedImage.src = '';
-                previewArea.style.display = 'none';
-                return;
-            }
-            generatedImage.onload = () => {
+            const showBg = bgToggle.checked;
+            const bgColor = bgColorInput.value;
+
+            previewImage.onload = () => {
                 imageMessage.textContent = message;
                 imageMessage.style.color = textColor;
                 imageMessage.style.fontSize = `${textSize}px`;
-                imageMessage.style.backgroundColor = textBackground ? textBackgroundColor : 'transparent';
-                imageMessage.style.padding = textBackground ? '0.5rem 1rem' : '0';
-                imageMessage.style.borderRadius = textBackground ? '0.375rem' : '0';
-                generatedImage.alt = message;
-                previewArea.style.display = 'block';
-                saveButton.style.display = 'inline-flex';
-                copyButton.style.display = 'inline-flex';
+
+                if (showBg) {
+                    imageMessage.style.backgroundColor = bgColor;
+                    imageMessage.style.padding = '0.5rem 1.5rem';
+                    imageMessage.style.borderRadius = '8px';
+                    imageMessage.style.textShadow = 'none';
+                } else {
+                    imageMessage.style.backgroundColor = 'transparent';
+                    imageMessage.style.padding = '0';
+                    imageMessage.style.borderRadius = '0';
+                    imageMessage.style.textShadow = '2px 2px 8px rgba(0, 0, 0, 0.8)';
+                }
+
+                previewSection.classList.add('active');
             };
-            generatedImage.onerror = () => {
-                errorMessageText.textContent = "画像の読み込みに失敗しました。別の画像を選択してください。";
-                errorArea.style.display = 'block';
-                previewArea.style.display = 'none';
+
+            previewImage.onerror = () => {
+                showError('Failed to load image. Please try another file.');
             };
-            generatedImage.src = selectedImageUrl;
+
+            previewImage.src = selectedImageUrl;
         }
-        saveButton.addEventListener('click', () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = generatedImage.width;
-            canvas.height = generatedImage.height;
-            ctx.drawImage(generatedImage, 0, 0, canvas.width, canvas.height);
-            const messageStyle = getComputedStyle(imageMessage);
-            ctx.font = messageStyle.font;
-            ctx.fillStyle = messageStyle.color;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            const text = imageMessage.textContent;
-            const x = canvas.width / 2;
-            const y = canvas.height / 2;
-            ctx.fillStyle = messageStyle.backgroundColor;
-            if (messageStyle.backgroundColor !== 'transparent') {
-                const textWidth = ctx.measureText(text).width + 20;
-                const textHeight = parseInt(messageStyle.fontSize);
-                ctx.fillRect(x - textWidth / 2, y - textHeight / 2 - 5, textWidth, textHeight + 10);
-            }
-            ctx.fillStyle = messageStyle.color;
-            ctx.fillText(text, x, y);
-            generatedCanvasUrl = canvas.toDataURL('image/png');
-            // Create a link and simulate a click to trigger download
+
+        // Save image
+        saveBtn.addEventListener('click', () => {
+            const canvas = createCanvas();
             const link = document.createElement('a');
-            link.href = generatedCanvasUrl;
-            link.download = 'lgtm_image.png'; // Set the filename
-            document.body.appendChild(link); // Append the link to the body
-            link.click(); // Simulate a click on the link
-            document.body.removeChild(link); // Remove the link after download
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'lgtm_image.png';
+            link.click();
+            showToast('Image downloaded successfully!');
         });
-        copyButton.addEventListener('click', () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = generatedImage.width;
-            canvas.height = generatedImage.height;
-            ctx.drawImage(generatedImage, 0, 0, canvas.width, canvas.height);
-            const messageStyle = getComputedStyle(imageMessage);
-            ctx.font = messageStyle.font;
-            ctx.fillStyle = messageStyle.color;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            const text = imageMessage.textContent;
-            const x = canvas.width / 2;
-            const y = canvas.height / 2;
-            ctx.fillStyle = messageStyle.backgroundColor;
-            if (messageStyle.backgroundColor !== 'transparent') {
-                const textWidth = ctx.measureText(text).width + 20;
-                const textHeight = parseInt(messageStyle.fontSize);
-                ctx.fillRect(x - textWidth / 2, y - textHeight / 2 - 5, textWidth, textHeight + 10);
-            }
-            ctx.fillStyle = messageStyle.color;
-            ctx.fillText(text, x, y);
-            canvas.toBlob((blob) => {
-                const data = [new ClipboardItem({
-                    'image/png': blob
-                })];
-                navigator.clipboard.write(data).then(() => {
-                    alert('画像をクリップボードにコピーしました！');
-                }).catch(err => {
-                    console.error('クリップボードへのコピーに失敗しました', err);
-                    alert('画像のコピーに失敗しました。');
-                });
+
+        // Copy image
+        copyBtn.addEventListener('click', async () => {
+            const canvas = createCanvas();
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': blob })
+                    ]);
+                    showToast('Image copied to clipboard!');
+                } catch (err) {
+                    showError('Failed to copy image. Please try again.');
+                }
             }, 'image/png');
         });
-        function isValidImageUrl(url) {
-            return /^(https?:\/\/.*\.(png|jpe?g|gif|webp)(\?.*)?)$/i.test(url);
+
+        // Create canvas with image and text
+        function createCanvas() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = previewImage.naturalWidth;
+            canvas.height = previewImage.naturalHeight;
+
+            // Draw image
+            ctx.drawImage(previewImage, 0, 0);
+
+            // Set text properties
+            const fontSize = parseInt(textSizeInput.value) * (previewImage.naturalWidth / previewImage.width);
+            ctx.font = `700 ${fontSize}px Inter, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const text = messageInput.value || 'LGTM!';
+            const x = canvas.width / 2;
+            const y = canvas.height / 2;
+
+            // Draw background if enabled
+            if (bgToggle.checked) {
+                const textWidth = ctx.measureText(text).width;
+                const padding = fontSize * 0.3;
+                ctx.fillStyle = bgColorInput.value;
+                ctx.beginPath();
+                ctx.roundRect(
+                    x - textWidth / 2 - padding,
+                    y - fontSize / 2 - padding * 0.5,
+                    textWidth + padding * 2,
+                    fontSize + padding,
+                    fontSize * 0.1
+                );
+                ctx.fill();
+            } else {
+                // Draw text shadow
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+                ctx.shadowBlur = fontSize * 0.1;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+            }
+
+            // Draw text
+            ctx.fillStyle = textColorInput.value;
+            ctx.fillText(text, x, y);
+
+            return canvas;
         }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('active');
+        }
+
+        // Hide error message
+        function hideError() {
+            errorMessage.classList.remove('active');
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (selectedImageUrl) {
+                    saveBtn.click();
+                }
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'c' && !window.getSelection().toString()) {
+                e.preventDefault();
+                if (selectedImageUrl) {
+                    copyBtn.click();
+                }
+            }
+        });
     </script>
 </body>
 </html>
